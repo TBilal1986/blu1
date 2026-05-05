@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nashamukt JK — Premium Reporting Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #042f2e;     
+    --accent: #10b981;      
+    --gold: #d4af37;        
+    --gold-light: #f4e8c1;  
+    --bg-page: #fdfdfb;     
+    --border: #e2e8f0;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --error: #be123c;
+    --error-bg: #fff1f2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body { 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
+    background: var(--bg-page); 
+    min-height: 100vh; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    padding: 10px;
+    background-image: radial-gradient(var(--gold-light) 0.5px, transparent 0.5px);
+    background-size: 30px 30px;
+  }
+
+  .wizard-card { 
+    width: 100%; 
+    max-width: 1050px; 
+    background: #fff; 
+    border-radius: 24px; 
+    box-shadow: 0 20px 60px -10px rgba(4, 47, 46, 0.15); 
+    display: flex; 
+    overflow: hidden; 
+    min-height: 700px;
+    border: 1px solid var(--gold-light);
+    position: relative;
+  }
+
+  /* Sidebar Design */
+  .sidebar { 
+    width: 300px; 
+    background: var(--primary); 
+    padding: 50px 30px; 
+    color: #fff; 
+    display: flex; 
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .brand h2 { 
+    font-family: 'Playfair Display', serif; 
+    font-size: 24px; 
+    color: var(--gold); 
+    margin-bottom: 4px; 
+  }
+
+  .brand p { 
+    font-size: 10px; 
+    text-transform: uppercase; 
+    letter-spacing: 2px; 
+    opacity: 0.7; 
+    margin-bottom: 50px; 
+    color: var(--gold-light);
+  }
+
+  .stepper { list-style: none; position: relative; z-index: 2; }
+  .step { 
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    margin-bottom: 30px; 
+    opacity: 0.3; 
+    transition: 0.4s; 
+  }
+  .step.active { opacity: 1; }
+  .step.complete { opacity: 0.8; color: var(--gold); }
+
+  .step-num { 
+    width: 32px; height: 32px; 
+    border-radius: 10px; 
+    border: 2px solid currentColor; 
+    display: flex; align-items: center; justify-content: center; 
+    font-weight: 700; font-size: 13px;
+  }
+  
+  .step.active .step-num { 
+    background: var(--gold); border-color: var(--gold); color: var(--primary); 
+  }
+
+  /* Main Content Area */
+  .main-content { 
+    flex: 1; 
+    padding: 50px 40px; 
+    display: flex; 
+    flex-direction: column; 
+    background: #fff;
+    width: 100%;
+  }
+
+  .form-step { display: none; }
+  .form-step.active { display: block; animation: fadeIn 0.5s ease-out; }
+
+  @keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(10px); } 
+    to { opacity: 1; transform: translateY(0); } 
+  }
+
+  .step-header h1 { 
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; color: var(--primary); margin-bottom: 8px; 
+  }
+  
+  .step-header p { 
+    color: var(--text-muted); font-size: 14px; margin-bottom: 35px; 
+  }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .field { margin-bottom: 20px; }
+  
+  label { 
+    display: block; font-size: 11px; font-weight: 800; 
+    margin-bottom: 8px; color: var(--primary); 
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  .req { color: var(--gold); margin-left: 2px; }
+
+  input, select { 
+    width: 100%; padding: 14px 16px; 
+    border: 2px solid #f1f5f9; border-radius: 12px; 
+    font-size: 14px; transition: 0.3s; background: #f8fafc;
+  }
+
+  input:focus, select:focus { outline: none; border-color: var(--gold); background: #fff; }
+
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  
+  .check-card { 
+    border: 2px solid #f1f5f9; padding: 15px; 
+    border-radius: 16px; cursor: pointer; 
+    display: flex; align-items: flex-start; gap: 12px; transition: 0.3s; 
+  }
+
+  .check-card.active { border-color: var(--gold); background: #fdfbf4; }
+  .check-card input { accent-color: var(--gold); width: 18px; height: 18px; }
+
+  .card-info b { font-size: 14px; display: block; color: var(--primary); margin-bottom: 2px; }
+  .card-info span { font-size: 11px; color: var(--text-muted); line-height: 1.3; }
+
+  /* COMPACT PHOTO PREVIEW */
+  .preview-container { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .preview-img { 
+    width: 60px; 
+    height: 60px; 
+    object-fit: cover; 
+    border-radius: 8px; 
+    border: 1px solid var(--border);
+  }
+
+  /* SUCCESS OVERLAY */
+  #successOverlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #fff;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    text-align: center;
+    padding: 30px;
+  }
+
+  .success-icon { font-size: 60px; margin-bottom: 15px; }
+  .success-title { font-family: 'Playfair Display', serif; font-size: 32px; color: var(--primary); margin-bottom: 10px; }
+  .success-message { color: var(--text-muted); font-size: 16px; max-width: 450px; margin-bottom: 25px; }
+
+  .footer { 
+    margin-top: auto; padding-top: 25px; 
+    display: flex; justify-content: space-between; align-items: center; 
+    border-top: 1px solid var(--border); 
+  }
+
+  .btn { 
+    padding: 12px 25px; border-radius: 12px; 
+    font-weight: 800; cursor: pointer; border: none; transition: 0.3s;
+    text-transform: uppercase; font-size: 12px;
+  }
+
+  .btn-next { background: var(--primary); color: #fff; }
+  .btn-prev { background: transparent; color: var(--text-muted); }
+  .badge { background: var(--gold-light); color: var(--primary); padding: 6px 15px; border-radius: 10px; font-weight: 800; font-size: 11px; }
+
+  /* MOBILE RESPONSIVENESS */
+  @media (max-width: 768px) {
+    .wizard-card { flex-direction: column; border-radius: 16px; min-height: auto; }
+    .sidebar { width: 100%; padding: 20px; flex-direction: row; justify-content: space-between; align-items: center; }
+    .sidebar-header { display: flex; align-items: baseline; gap: 10px; }
+    .brand p, .step-label, .badge { display: none; }
+    .stepper { display: flex; gap: 10px; }
+    .step { margin-bottom: 0; }
+    .main-content { padding: 30px 20px; }
+    .row { grid-template-columns: 1fr; }
+    .step-header h1 { font-size: 22px; }
+    .card-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wizard-card">
+  <!-- SUCCESS OVERLAY -->
+  <div id="successOverlay">
+    <div class="success-icon">🏆✨🎊</div>
+    <h2 class="success-title">Submission Successful!</h2>
+    <p class="success-message">Your awareness report has been officially recorded in the system. Thank you for your support in building a Nashamukt JK.</p>
+    <button class="btn btn-next" onclick="location.reload()" style="padding: 14px 40px;">Done</button>
+  </div>
+
+  <aside class="sidebar">
+    <div class="brand">
+      <h2>Nashamukt JK</h2>
+      <p>Official Reporting</p>
+    </div>
+    <ul class="stepper">
+      <li class="step active" id="s1"><div class="step-num">1</div><div class="step-label">Event</div></li>
+      <li class="step" id="s2"><div class="step-num">2</div><div class="step-label">Location</div></li>
+      <li class="step" id="s3"><div class="step-num">3</div><div class="step-label">Audience</div></li>
+      <li class="step" id="s4"><div class="step-num">4</div><div class="step-label">Verify</div></li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+    <form id="wizardForm" novalidate>
+      
+      <!-- STEP 1 -->
+      <div class="form-step active" data-step="1">
+        <div class="step-header">
+          <h1>Event Details</h1>
+          <p>Tell us about the awareness event activity[cite: 4].</p>
+        </div>
+        <div class="field">
+          <label>Event Name <span class="req">*</span></label>
+          <input type="text" name="event_name" placeholder="Name of activity" required>
+        </div>
+        <div class="row">
+          <div class="field"><label>Date <span class="req">*</span></label><input type="date" name="event_date" required></div>
+          <div class="field"><label>Venue <span class="req">*</span></label><input type="text" name="event_venue" placeholder="Venue name" required></div>
+        </div>
+        <label>Category <span class="req">*</span></label>
+        <div class="card-grid" data-required="checkbox">
+          <label class="check-card"><input type="checkbox" name="event_category" value="Cultural"> <div class="card-info"><b>Cultural</b><span>Drama, Song, Performances</span></div></label>
+          <label class="check-card"><input type="checkbox" name="event_category" value="Awareness"> <div class="card-info"><b>Awareness</b><span>Sessions, Seminars</span></div></label>
+          <label class="check-card"><input type="checkbox" name="event_category" value="Sports"> <div class="card-info"><b>Sports</b><span>Marathons, Rallies</span></div></label>
+          <label class="check-card"><input type="checkbox" name="event_category" value="Training"> <div class="card-info"><b>Training</b><span>Workshops</span></div></label>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="form-step" data-step="2">
+        <div class="step-header"><h1>Location Details</h1><p>Geographic details of the reporting area[cite: 4].</p></div>
+        <div class="row">
+          <div class="field"><label>District</label><input type="text" value="Budgam" disabled></div>
+          <div class="field">
+            <label>Block <span class="req">*</span></label>
+            <select name="block" required>
+              <option value="">Select Block</option>
+              <option>B.K.Pora</option><option>Badgam</option><option>Beerwah</option><option>Chadoora</option><option>Khag</option><option>Khan-Sahib</option><option>Nagam</option><option>Narbal</option><option>Parnewa</option><option>Sukhnag Hard Panzoo</option><option>Waterhail</option><option>Pakherpora</option><option>Charisharief</option><option>Surasyar</option><option>Soibugh</option><option>Rathsun</option><option>S K Pora</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Ward <span class="req">*</span></label><input type="text" name="ward" required placeholder="Enter ward"></div>
+          <div class="field"><label>Village <span class="req">*</span></label><input type="text" name="village" required placeholder="Enter village"></div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="form-step" data-step="3">
+        <div class="step-header"><h1>Participation</h1><p>Record audience data and headcount[cite: 4].</p></div>
+        <div class="row">
+          <div class="field">
+            <label>Attendance Range <span class="req">*</span></label>
+            <select name="attendance_range" required>
+              <option value="">Select Range</option>
+              <option>20-40</option><option>40-100</option><option>100-150</option><option>150-200</option><option>200-500</option><option>500 & above</option>
+            </select>
+          </div>
+          <div class="field"><label>Actual Count <span class="req">*</span></label><input type="number" name="actual_attendance" required placeholder="Actual headcount"></div>
+        </div>
+        <label>Target Audience <span class="req">*</span></label>
+        <div class="card-grid" data-required="checkbox">
+          <label class="check-card"><input type="checkbox" name="target_audience" value="Students"> <b>Students</b></label>
+          <label class="check-card"><input type="checkbox" name="target_audience" value="Youth"> <b>Youth</b></label>
+          <label class="check-card"><input type="checkbox" name="target_audience" value="Civil Society"> <b>Civil Society</b></label>
+        </div>
+        <label style="margin-top:20px">Age Group <span class="req">*</span></label>
+        <div class="card-grid" data-required="checkbox">
+          <label class="check-card"><input type="checkbox" name="age_group" value="U18"> <b>Under 18</b></label>
+          <label class="check-card"><input type="checkbox" name="age_group" value="18-35"> <b>18-35</b></label>
+          <label class="check-card"><input type="checkbox" name="age_group" value="35+"> <b>35+</b></label>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="form-step" data-step="4">
+        <div class="step-header"><h1>Verification</h1><p>Final details and documentation[cite: 4].</p></div>
+        <div class="field"><label>Coordinator <span class="req">*</span></label><input type="text" name="event_coordinator_name" required placeholder="Full name"></div>
+        <div class="row">
+          <div class="field"><label>Contact <span class="req">*</span></label><input type="tel" name="event_coordinator_contact_number" required placeholder="Phone"></div>
+          <div class="field"><label>Designation <span class="req">*</span></label><input type="text" name="event_coordinator_desig" required placeholder="Official title"></div>
+        </div>
+        <div class="field">
+          <label>Photos <span class="req">*</span></label>
+          <input type="file" id="fileInp" accept="image/*" multiple required style="display:none" onchange="previewFiles()">
+          <div style="border: 2px dashed var(--gold); padding: 30px; border-radius: 16px; text-align: center; cursor: pointer; background: #fffcf5;" onclick="document.getElementById('fileInp').click()">
+            <div style="font-size: 30px;">📸</div>
+            <p style="font-weight: 700; color: var(--primary); font-size: 13px;">Add Evidence Photos</p>
+          </div>
+          <div class="preview-container" id="previewArea"></div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <button type="button" class="btn btn-prev" id="prev" onclick="nav(-1)" style="visibility: hidden;">Back</button>
+        <span class="badge" id="indicator">Step 1 of 4</span>
+        <button type="button" class="btn btn-next" id="next" onclick="validateStep()">Next</button>
+      </div>
+    </form>
+  </main>
+</div>
+
+<script>
+  let curr = 1;
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz_FfP1z6osMO5YWVHfYm9WIM16IEIyyNZ5DYrsbMMmjiPNJa0u4dN9PeoN09Cb0BGw/exec";
+
+  async function validateStep() {
+    const stepEl = document.querySelector(`.form-step[data-step="${curr}"]`);
+    let valid = true;
+
+    stepEl.querySelectorAll('[required]').forEach(inp => {
+      if (!inp.value.trim() && inp.type !== 'file') {
+        inp.style.borderColor = 'var(--error)';
+        valid = false;
+      } else {
+        inp.style.borderColor = '#f1f5f9';
+      }
+    });
+
+    const checkboxGroups = stepEl.querySelectorAll('.card-grid[data-required="checkbox"]');
+    checkboxGroups.forEach(group => {
+      if (!group.querySelector('input:checked')) valid = false;
+    });
+
+    if (valid) {
+      if (curr === 4) await submitForm();
+      else nav(1);
+    }
+  }
+
+  async function submitForm() {
+    const btn = document.getElementById('next');
+    btn.innerText = "Saving...";
+    btn.disabled = true;
+
+    const form = document.getElementById('wizardForm');
+    const formData = new FormData();
+    
+    form.querySelectorAll('input:not([type="file"]), select').forEach(inp => {
+      if (inp.type === 'checkbox') {
+        if (inp.checked) formData.append(inp.name, inp.value);
+      } else {
+        formData.append(inp.name, inp.value);
+      }
+    });
+
+    const fileInp = document.getElementById('fileInp');
+    if (fileInp.files.length > 0) {
+      for (let i = 0; i < fileInp.files.length; i++) {
+        const file = fileInp.files[i];
+        const base64 = await toBase64(file);
+        formData.append(`fileData${i}`, base64.split(',')[1]);
+        formData.append(`fileName${i}`, file.name);
+        formData.append(`fileType${i}`, file.type);
+      }
+      formData.append("fileCount", fileInp.files.length);
+    }
+
+    try {
+      await fetch(WEB_APP_URL, { method: "POST", body: formData, mode: "no-cors" });
+      document.getElementById('successOverlay').style.display = 'flex';
+    } catch (e) {
+      alert("Error: Check internet.");
+      btn.disabled = false;
+      btn.innerText = "Submit";
+    }
+  }
+
+  const toBase64 = file => new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+  });
+
+  function previewFiles() {
+    const preview = document.getElementById('previewArea');
+    preview.innerHTML = '';
+    const files = document.getElementById('fileInp').files;
+    for (let f of files) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.className = 'preview-img';
+        preview.appendChild(img);
+      }
+      reader.readAsDataURL(f);
+    }
+  }
+
+  function nav(n) {
+    const steps = document.querySelectorAll(".form-step");
+    const nodes = document.querySelectorAll(".step");
+    steps[curr - 1].classList.remove("active");
+    nodes[curr - 1].classList.remove("active");
+    if (n > 0) nodes[curr - 1].classList.add("complete");
+    curr += n;
+    steps[curr - 1].classList.add("active");
+    nodes[curr - 1].classList.add("active");
+    document.getElementById("prev").style.visibility = (curr === 1) ? "hidden" : "visible";
+    document.getElementById("next").innerText = (curr === 4) ? "Finish" : "Next";
+    document.getElementById("indicator").innerText = `Step ${curr} of 4`;
+  }
+
+  document.querySelectorAll('.check-card input').forEach(inp => {
+    inp.addEventListener('change', () => inp.closest('.check-card').classList.toggle('active', inp.checked));
+  });
+</script>
+</body>
+</html>
